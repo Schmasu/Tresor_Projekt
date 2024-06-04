@@ -1,8 +1,6 @@
 #include <Arduino.h>
 
 // put function declarations here:
-void stateMachine(Event_t event);
-
 typedef enum{
   SAFE_LOCKED,
   LEVEL1_UNLOCKED,
@@ -21,6 +19,9 @@ typedef enum{
 }Event_t;
 
 State_t state;
+Event_t event;
+
+void stateMachine(Event_t event);
 
 void setup() {
   // put your setup code here, to run once:
@@ -30,7 +31,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   State_t state = SAFE_LOCKED;
-  
+  stateMachine(event);
 }
 
 // put function definitions here:
@@ -43,6 +44,7 @@ void stateMachine(Event_t event) {
     else if(INPUT_REFUSED == event){
       state = SAFE_LOCKED;
     }
+    break;
     case LEVEL1_UNLOCKED:
     if(INPUT2_ACCEPTED == event){
       state = LEVEL2_UNLOCKED;
@@ -50,6 +52,7 @@ void stateMachine(Event_t event) {
     else if(INPUT_REFUSED == event){
       state = SAFE_LOCKED;
     }
+    break;
     case LEVEL2_UNLOCKED:
     if(INPUT3_ACCEPTED == event){
       state = LEVEL3_UNLOCKED;
@@ -57,13 +60,16 @@ void stateMachine(Event_t event) {
     else if(INPUT_REFUSED == event){
       state = SAFE_LOCKED;
     }
+    break;
     case LEVEL3_UNLOCKED:
     if(OPEN_DOOR == event){
       state = SAFE_OPEN;
     }
+    break;
     case SAFE_OPEN:
     if(CLOSE_DOOR == event){
       state = SAFE_LOCKED;
     }
+    break;
   }
 }
