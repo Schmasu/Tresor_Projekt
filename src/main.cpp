@@ -1,18 +1,69 @@
 #include <Arduino.h>
 
 // put function declarations here:
-int myFunction(int, int);
+void stateMachine(Event_t event);
+
+typedef enum{
+  SAFE_LOCKED,
+  LEVEL1_UNLOCKED,
+  LEVEL2_UNLOCKED,
+  LEVEL3_UNLOCKED,
+  SAFE_OPEN,
+}State_t;
+
+typedef enum{
+  INPUT1_ACCEPTED,
+  INPUT2_ACCEPTED,
+  INPUT3_ACCEPTED,
+  INPUT_REFUSED,
+  OPEN_DOOR,
+  CLOSE_DOOR,
+}Event_t;
+
+State_t state;
 
 void setup() {
   // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  State_t state = SAFE_LOCKED;
+  
 }
 
 // put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void stateMachine(Event_t event) {
+  switch(state){
+    case SAFE_LOCKED:
+    if(INPUT1_ACCEPTED == event){
+      state = LEVEL1_UNLOCKED;
+    }
+    else if(INPUT_REFUSED == event){
+      state = SAFE_LOCKED;
+    }
+    case LEVEL1_UNLOCKED:
+    if(INPUT2_ACCEPTED == event){
+      state = LEVEL2_UNLOCKED;
+    }
+    else if(INPUT_REFUSED == event){
+      state = SAFE_LOCKED;
+    }
+    case LEVEL2_UNLOCKED:
+    if(INPUT3_ACCEPTED == event){
+      state = LEVEL3_UNLOCKED;
+    }
+    else if(INPUT_REFUSED == event){
+      state = SAFE_LOCKED;
+    }
+    case LEVEL3_UNLOCKED:
+    if(OPEN_DOOR == event){
+      state = SAFE_OPEN;
+    }
+    case SAFE_OPEN:
+    if(CLOSE_DOOR == event){
+      state = SAFE_LOCKED;
+    }
+  }
 }
