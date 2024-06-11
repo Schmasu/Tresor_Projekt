@@ -1,75 +1,84 @@
 #include <Arduino.h>
+#include "stateMachine.h"
 
-// put function declarations here:
-typedef enum{
-  SAFE_LOCKED,
-  LEVEL1_UNLOCKED,
-  LEVEL2_UNLOCKED,
-  LEVEL3_UNLOCKED,
-  SAFE_OPEN,
-}State_t;
+// defines
+#define LED_RED_PIN PA7
+#define LED_ORANGE_PIN PA6
+#define LED_GREEN_PIN PA5
 
-typedef enum{
-  INPUT1_ACCEPTED,
-  INPUT2_ACCEPTED,
-  INPUT3_ACCEPTED,
-  INPUT_REFUSED,
-  OPEN_DOOR,
-  CLOSE_DOOR,
-}Event_t;
+#define BTN_1_PIN PC7
+#define BTN_2_PIN PA9
+#define BTN_3_PIN PA8
+#define BTN_4_PIN PB10
 
-State_t state;
-Event_t event;
-
-void stateMachine(Event_t event);
+void pin_setup();
+void check_button();
+void check_state();
 
 void setup() {
   // put your setup code here, to run once:
-  
+  pin_setup();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  State_t state = SAFE_LOCKED;
-  stateMachine(event);
+  check_button();
+  check_state();
 }
 
 // put function definitions here:
-void stateMachine(Event_t event) {
-  switch(state){
-    case SAFE_LOCKED:
-    if(INPUT1_ACCEPTED == event){
-      state = LEVEL1_UNLOCKED;
-    }
-    else if(INPUT_REFUSED == event){
-      state = SAFE_LOCKED;
-    }
+void pin_setup(){
+  pinMode(LED_GREEN_PIN, OUTPUT);
+  pinMode(LED_ORANGE_PIN, OUTPUT);
+  pinMode(LED_RED_PIN, OUTPUT);
+
+  pinMode(BTN_1_PIN, INPUT);
+  pinMode(BTN_2_PIN, INPUT);
+  pinMode(BTN_3_PIN, INPUT);
+  pinMode(BTN_4_PIN, INPUT);
+}
+
+void check_button(){
+  if (LOW == digitalRead(BTN_1_PIN))
+  {
+    stateMachine(INPUT1_ACCEPTED);
+  }
+
+  if (LOW == digitalRead(BTN_2_PIN))
+  {
+    stateMachine(INPUT2_ACCEPTED);
+  }
+
+  if (LOW == digitalRead(BTN_3_PIN))
+  {
+    stateMachine(INPUT3_ACCEPTED);
+  }
+
+  if (LOW == digitalRead(BTN_4_PIN))
+  {
+    stateMachine(INPUT_REFUSED);
+  }
+}
+
+void check_state(){
+  switch (state)
+  {
+  case SAFE_LOCKED:
+    digitalWrite(LED_RED_PIN,HIGH);
+    digitalWrite(LED_ORANGE_PIN, LOW);
+    digitalWrite(LED_GREEN_PIN, LOW);
     break;
-    case LEVEL1_UNLOCKED:
-    if(INPUT2_ACCEPTED == event){
-      state = LEVEL2_UNLOCKED;
-    }
-    else if(INPUT_REFUSED == event){
-      state = SAFE_LOCKED;
-    }
+  case LEVEL1_UNLOCKED:
+    digitalWrite(LED_RED_PIN,LOW);
+    digitalWrite(LED_ORANGE_PIN, HIGH);
+    digitalWrite(LED_GREEN_PIN, LOW);
     break;
-    case LEVEL2_UNLOCKED:
-    if(INPUT3_ACCEPTED == event){
-      state = LEVEL3_UNLOCKED;
-    }
-    else if(INPUT_REFUSED == event){
-      state = SAFE_LOCKED;
-    }
+  case LEVEL2_UNLOCKED:
+    digitalWrite(LED_RED_PIN,LOW);
+    digitalWrite(LED_ORANGE_PIN, HIGH);
+    digitalWrite(LED_GREEN_PIN, HIGH);
     break;
-    case LEVEL3_UNLOCKED:
-    if(OPEN_DOOR == event){
-      state = SAFE_OPEN;
-    }
-    break;
-    case SAFE_OPEN:
-    if(CLOSE_DOOR == event){
-      state = SAFE_LOCKED;
-    }
+  default:
     break;
   }
 }
